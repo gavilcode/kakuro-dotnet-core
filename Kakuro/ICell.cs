@@ -1,6 +1,6 @@
 ﻿namespace Kakuro
 {
-    interface ICell
+    public interface ICell
     {
         string Draw();
     }

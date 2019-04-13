@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.28307.572
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Kakuro", "kakuro-dotnet-core\Kakuro.csproj", "{A771BA9C-7C00-4CA8-90CB-4CA3C4B57876}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Kakuro", "Kakuro\Kakuro.csproj", "{A771BA9C-7C00-4CA8-90CB-4CA3C4B57876}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KakuroTest", "KakuroTest\KakuroTest.csproj", "{7B092F4F-07EA-4622-AF94-ED0B6C1A2625}"
 EndProject
