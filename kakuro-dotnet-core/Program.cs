@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace kakuro_dotnet_core
+namespace Kakuro
 {
     class Program
     {
