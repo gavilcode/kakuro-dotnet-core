@@ -1,6 +1,6 @@
 ﻿namespace Kakuro
 {
-    public class AcrossCell : ICell, IAcross
+    public struct AcrossCell : ICell, IAcross
     {
         public int Across { get; set; }
 

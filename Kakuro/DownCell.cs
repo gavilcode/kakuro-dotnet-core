@@ -1,6 +1,6 @@
 ﻿namespace Kakuro
 {
-    public class DownCell : ICell, IDown
+    public struct DownCell : ICell, IDown
     {
         public int Down { get; set; }
 

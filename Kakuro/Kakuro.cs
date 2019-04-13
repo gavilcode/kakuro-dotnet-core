@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Kakuro
@@ -59,6 +60,144 @@ namespace Kakuro
                     .Where(x => target == x.Sum())
                     .ToList();
         }
+
+        public static IList<IList<T>> Transpose<T>(IList<IList<T>> m)
+        {
+            if (0 == m.Count)
+            {
+                return new List<IList<T>>();
+            }
+            else
+            {
+                return Enumerable.Range(0, m[0].Count)
+                        .Select(i => m.Select(col => col[i]).ToList())
+                        .Cast<IList<T>>()
+                        .ToList();
+            }
+        }
+
+        public static bool IsPossible(ValueCell v, int n) => v.Contains(n);
+
+        public static IList<T> Drop<T>(int n, IList<T> coll) => coll.Skip(n).ToList();
+
+        public static IList<T> Take<T>(int n, IList<T> coll) => coll.Take(n).ToList();
+
+
+        public static IList<IList<T>> PartitionBy<T>(Predicate<T> f, IList<T> coll)
+        {
+            if (0 == coll.Count)
+            {
+                return Enumerable.Empty<IList<T>>().ToList();
+            }
+            else
+            {
+                T head = coll[0];
+                bool fx = f(head);
+                var group = coll.TakeWhile(y => fx == f(y)).ToList();
+                return ConcatLists(AsList(group), PartitionBy(f, Drop(group.Count, coll)));
+            }
+        }
+
+        public static IList<IList<T>> PartitionAll<T>(int n, int step, IList<T> coll)
+        {
+            if (0 == coll.Count)
+            {
+                return Enumerable.Empty<IList<T>>().ToList();
+            }
+            else
+            {
+                return ConcatLists(AsList(Take(n, coll).ToList()), PartitionAll(n, step, Drop(step, coll)));
+            }
+        }
+
+        public static IList<IList<T>> PartitionN<T>(int n, IList<T> coll) => PartitionAll(n, n, coll);
+
+        public static IList<ValueCell> SolveStep(IList<ValueCell> cells, int total)
+        {
+            int finalIndex = cells.Count - 1;
+            var perms = PermuteAll(cells, total)
+                    .Where(v => IsPossible(cells.Last(), v[finalIndex]))
+                    .Where(AllDifferent)
+                    .ToList();
+            return Transpose(perms)
+                    .Select(v)
+                    .ToList();
+        }
+
+        // returns (non-vals, vals)*
+        public static IList<IList<ICell>> GatherValues(IList<ICell> line) => PartitionBy(v => v is ValueCell, line);
+
+        public static IList<SimplePair<IList<ICell>>> PairTargetsWithValues(IList<ICell> line)
+        {
+            return PartitionN(2, GatherValues(line))
+                    .Select(part => new SimplePair<IList<ICell>>(part[0], (1 == part.Count) ? new List<ICell>() : part[1]))
+                    .ToList();
+        }
+
+        public static IList<ICell> SolvePair(Func<ICell, int> f, SimplePair<IList<ICell>> pair)
+        {
+            var notValueCells = pair.Left;
+            if (0 == pair.Right.Count)
+            {
+                return notValueCells;
+            }
+            else
+            {
+                var valueCells = pair.Right.Cast<ValueCell>().ToList();
+                var newValueCells = SolveStep(valueCells, f(notValueCells.Last()));
+                return notValueCells.Concat(newValueCells).ToList();
+            }
+        }
+
+        public static IList<ICell> SolveLine(IList<ICell> line, Func<ICell, int> f)
+        {
+            return PairTargetsWithValues(line)
+                    .SelectMany(pair => SolvePair(f, pair))
+                    .ToList();
+        }
+
+        public static IList<ICell> SolveRow(IList<ICell> r) => SolveLine(r, x => ((IAcross)x).Across);
+
+        public static IList<ICell> SolveColumn(IList<ICell> c) => SolveLine(c, x => ((IDown)x).Down);
+
+        public static IList<IList<ICell>> SolveGrid(IList<IList<ICell>> grid)
+        {
+            var rowsDone = grid.Select(SolveRow).ToList();
+            var colsDone = Transpose(rowsDone).Select(SolveColumn).ToList();
+            return Transpose(colsDone);
+        }
+
+        public static bool GridEquals(IList<IList<ICell>> g1, IList<IList<ICell>> g2)
+        {
+            if (g1.Count == g2.Count)
+            {
+                return Enumerable.Range(0, g1.Count).All(i =>
+                {
+                    var xi = g1[i];
+                    var yi = g2[i];
+                    return Enumerable.Range(0, xi.Count).All(j => (xi.Count == yi.Count) && xi[j].Equals(yi[j]));
+                });
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        public static IList<IList<ICell>> Solver(IList<IList<ICell>> grid)
+        {
+            Console.WriteLine(DrawGrid(grid));
+            var g = SolveGrid(grid);
+            if (GridEquals(g, grid))
+            {
+                return g;
+            }
+            else
+            {
+                return Solver(g);
+            }
+        }
+
 
     }
 }

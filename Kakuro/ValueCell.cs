@@ -37,7 +37,7 @@ namespace Kakuro
 
         public override bool Equals(object obj)
         {
-            ValueCell that = obj as ValueCell;
+            var that = obj as ValueCell;
             return this.values.SetEquals(that.values);
         }
 

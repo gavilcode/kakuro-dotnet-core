@@ -1,6 +1,6 @@
 ﻿namespace Kakuro
 {
-    public class EmptyCell : ICell
+    public struct EmptyCell : ICell
     {
         public string Draw()
         {
